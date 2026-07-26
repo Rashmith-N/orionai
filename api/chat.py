@@ -45,7 +45,7 @@ class ChatResponse(BaseModel):
     reply: str
 
 
-@app.post("/", response_model=ChatResponse)
+@app.post("/api/chat", response_model=ChatResponse)
 def chat(req: ChatRequest):
     if not client:
         raise HTTPException(
