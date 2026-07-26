@@ -1,6 +1,7 @@
 """
-ORIONAI — Vercel serverless function
+ORIONAI — Vercel serverless function (v3)
 Handles POST /api/chat by calling the Google Gemini API (free tier).
+Now supports an optional image attachment for vision understanding.
 Developed by Rashmith.
 """
 
@@ -25,8 +26,9 @@ app.add_middleware(
 )
 
 SYSTEM_PROMPT = (
-    "You are ORION, the assistant inside ORIONAI, a cosmic-themed AI search "
-    "and chat website built by Rashmith. Answer clearly and concisely."
+    "You are ORION, the assistant inside ORIONAI, a cosmic-themed AI app built "
+    "by Rashmith. Answer clearly and concisely. If an image is attached, look "
+    "at it carefully before answering."
 )
 
 
@@ -38,6 +40,8 @@ class ChatMessage(BaseModel):
 class ChatRequest(BaseModel):
     message: str
     history: list[ChatMessage] = []
+    image: str | None = None       # base64-encoded image data, no data: prefix
+    image_mime: str | None = None  # e.g. "image/png", "image/jpeg"
 
 
 class ChatResponse(BaseModel):
@@ -56,7 +60,14 @@ def chat(req: ChatRequest):
     for turn in req.history[-12:]:
         role = "model" if turn.role == "assistant" else "user"
         contents.append({"role": role, "parts": [{"text": turn.content}]})
-    contents.append({"role": "user", "parts": [{"text": req.message}]})
+
+    current_parts = []
+    if req.image and req.image_mime:
+        current_parts.append({
+            "inline_data": {"mime_type": req.image_mime, "data": req.image}
+        })
+    current_parts.append({"text": req.message})
+    contents.append({"role": "user", "parts": current_parts})
 
     payload = {
         "system_instruction": {"parts": [{"text": SYSTEM_PROMPT}]},
@@ -68,7 +79,7 @@ def chat(req: ChatRequest):
             GEMINI_URL,
             headers={"x-goog-api-key": GEMINI_API_KEY, "Content-Type": "application/json"},
             json=payload,
-            timeout=30,
+            timeout=45,
         )
         resp.raise_for_status()
         data = resp.json()
