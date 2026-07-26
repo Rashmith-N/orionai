@@ -1,18 +1,19 @@
 """
 ORIONAI — Vercel serverless function
-Handles POST /api/chat by calling the OpenAI API.
+Handles POST /api/chat by calling the Google Gemini API (free tier).
 Developed by Rashmith.
 """
 
 import os
 
+import httpx
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from openai import OpenAI
 
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-OPENAI_MODEL = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+GEMINI_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent"
 
 app = FastAPI(title="ORIONAI API")
 
@@ -22,8 +23,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
-client = OpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
 
 SYSTEM_PROMPT = (
     "You are ORION, the assistant inside ORIONAI, a cosmic-themed AI search "
@@ -47,26 +46,34 @@ class ChatResponse(BaseModel):
 
 @app.post("/api/chat", response_model=ChatResponse)
 def chat(req: ChatRequest):
-    if not client:
+    if not GEMINI_API_KEY:
         raise HTTPException(
             status_code=503,
-            detail="OPENAI_API_KEY is not set. Add it in Vercel Settings, then redeploy.",
+            detail="GEMINI_API_KEY is not set. Add it in Vercel Settings, then redeploy.",
         )
 
-    messages = [{"role": "system", "content": SYSTEM_PROMPT}]
+    contents = []
     for turn in req.history[-12:]:
-        messages.append({"role": turn.role, "content": turn.content})
-    messages.append({"role": "user", "content": req.message})
+        role = "model" if turn.role == "assistant" else "user"
+        contents.append({"role": role, "parts": [{"text": turn.content}]})
+    contents.append({"role": "user", "parts": [{"text": req.message}]})
+
+    payload = {
+        "system_instruction": {"parts": [{"text": SYSTEM_PROMPT}]},
+        "contents": contents,
+    }
 
     try:
-        completion = client.chat.completions.create(
-            model=OPENAI_MODEL,
-            messages=messages,
-            temperature=0.7,
-            max_tokens=800,
+        resp = httpx.post(
+            GEMINI_URL,
+            headers={"x-goog-api-key": GEMINI_API_KEY, "Content-Type": "application/json"},
+            json=payload,
+            timeout=30,
         )
-        reply = completion.choices[0].message.content
+        resp.raise_for_status()
+        data = resp.json()
+        reply = data["candidates"][0]["content"]["parts"][0]["text"]
     except Exception as exc:
-        raise HTTPException(status_code=502, detail=f"OpenAI request failed: {exc}") from exc
+        raise HTTPException(status_code=502, detail=f"Gemini request failed: {exc}") from exc
 
     return ChatResponse(reply=reply)
