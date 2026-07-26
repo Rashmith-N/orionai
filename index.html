@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>ORIONAI — Ask the sky anything</title>
+<meta name="description" content="ORIONAI is an AI search and chat experience built by Rashmith. Navigate answers the way you'd navigate stars." />
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<canvas id="sky"></canvas>
+
+<header class="nav">
+  <div class="nav-inner">
+    <div class="brand">
+      <span class="brand-mark">✦</span>
+      <span class="brand-name">ORION<span class="brand-ai">AI</span></span>
+    </div>
+    <nav class="nav-links">
+      <a href="#features">Capabilities</a>
+      <a href="#chat">Ask Orion</a>
+      <a href="#about">About</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <p class="eyebrow">A guide, not a search bar</p>
+    <h1 class="hero-title">
+      Ask the sky <span class="glow-word">anything.</span>
+    </h1>
+    <p class="hero-sub">
+      ORIONAI charts a path through the noise — one clear answer at a time,
+      pulled from the same stars that have guided navigators for centuries.
+    </p>
+
+    <form id="hero-form" class="star-gate" autocomplete="off">
+      <span class="star-gate-icon">✦</span>
+      <input
+        id="hero-input"
+        type="text"
+        placeholder="Ask Orion about anything under the sun..."
+        aria-label="Ask ORIONAI a question"
+      />
+      <button type="submit" class="star-gate-submit" aria-label="Ask">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+    </form>
+
+    <div class="hero-suggestions">
+      <button class="chip" data-q="Explain quantum computing like I'm in college">Explain quantum computing</button>
+      <button class="chip" data-q="Give me a 7-day study plan for data structures">Study plan for DSA</button>
+      <button class="chip" data-q="What's the difference between REST and GraphQL?">REST vs GraphQL</button>
+    </div>
+  </section>
+
+  <section id="chat" class="chat-section">
+    <div class="chat-frame" id="chat-frame" hidden>
+      <div class="chat-header">
+        <span class="chat-header-dot"></span>
+        <span>Orion is listening</span>
+      </div>
+      <div class="chat-log" id="chat-log"></div>
+      <form id="chat-form" class="chat-input-row" autocomplete="off">
+        <input id="chat-input" type="text" placeholder="Ask a follow-up..." aria-label="Message" />
+        <button type="submit" aria-label="Send">Send</button>
+      </form>
+    </div>
+  </section>
+
+  <section id="features" class="features">
+    <p class="eyebrow center">What Orion is built for</p>
+    <h2 class="section-title center">Three ways to navigate</h2>
+
+    <div class="feature-grid">
+      <article class="feature-card reveal">
+        <span class="feature-glyph">⟡</span>
+        <h3>Clear answers</h3>
+        <p>No walls of links to sort through. Orion reads the sky for you and hands back one grounded answer.</p>
+      </article>
+      <article class="feature-card reveal">
+        <span class="feature-glyph">◈</span>
+        <h3>Follow-up aware</h3>
+        <p>Conversations hold their shape. Ask a follow-up and Orion remembers where you were headed.</p>
+      </article>
+      <article class="feature-card reveal">
+        <span class="feature-glyph">✦</span>
+        <h3>Built to extend</h3>
+        <p>FastAPI backend, clean API surface — plug in your own model, tools, or data sources.</p>
+      </article>
+    </div>
+  </section>
+
+  <section id="about" class="about">
+    <div class="about-inner reveal">
+      <p class="eyebrow">Why "Orion"</p>
+      <h2 class="section-title">The hunter finds the shortest path</h2>
+      <p class="about-text">
+        Orion is one of the oldest constellations used for navigation — sailors and
+        travelers oriented themselves by its belt long before satellites existed.
+        ORIONAI borrows that idea: instead of scattering results across a page,
+        it draws a straight line to the answer.
+      </p>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-inner">
+    <div class="brand small">
+      <span class="brand-mark">✦</span>
+      <span class="brand-name">ORION<span class="brand-ai">AI</span></span>
+    </div>
+    <p class="footer-credit">Developed by <strong>Rashmith</strong></p>
+  </div>
+</footer>
+
+<script src="js/main.js"></script>
+</body>
+</html>
