@@ -1,9 +1,6 @@
 """
 ORIONAI — Vercel serverless function
 Handles POST /api/chat by calling the OpenAI API.
-The API key is read from the OPENAI_API_KEY environment variable,
-which you set in the Vercel project's Settings → Environment Variables.
-
 Developed by Rashmith.
 """
 
@@ -30,8 +27,7 @@ client = OpenAI(api_key=OPENAI_API_KEY) if OPENAI_API_KEY else None
 
 SYSTEM_PROMPT = (
     "You are ORION, the assistant inside ORIONAI, a cosmic-themed AI search "
-    "and chat website built by Rashmith. Answer clearly and concisely. "
-    "When useful, structure answers with short paragraphs or lists."
+    "and chat website built by Rashmith. Answer clearly and concisely."
 )
 
 
@@ -49,17 +45,12 @@ class ChatResponse(BaseModel):
     reply: str
 
 
-@app.get("/api/health")
-def health():
-    return {"status": "ok", "app": "ORIONAI", "developer": "Rashmith", "key_configured": bool(OPENAI_API_KEY)}
-
-
-@app.post("/api/chat", response_model=ChatResponse)
+@app.post("/", response_model=ChatResponse)
 def chat(req: ChatRequest):
     if not client:
         raise HTTPException(
             status_code=503,
-            detail="OPENAI_API_KEY is not set. Add it in Vercel → Project → Settings → Environment Variables, then redeploy.",
+            detail="OPENAI_API_KEY is not set. Add it in Vercel Settings, then redeploy.",
         )
 
     messages = [{"role": "system", "content": SYSTEM_PROMPT}]
